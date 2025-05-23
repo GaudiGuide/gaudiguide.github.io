@@ -1,168 +1,9 @@
-Weiter zum Inhalt
-Du:
-generiere eine website in einem html file. Dabei sollte sie CSS, HTML und JS enthalten. Es soll eine beige, grüne Seite sein, welche unter dem Kopf eine interaktive Karte hat. Nutze dazu beispielsweise Openstreetmap. Füge zusätzlich eine Suchfunktion ein, um Nach orten zu suchen. Unter der Karte soll es zwei felder geben. das eine um sich in einen Account anzumelden und ein anderes, um die Karte zu skalieren und einen umkreis einzuzeichnen
-ChatGPT:
-Hier ist ein vollständiges HTML-File, das deine Anforderungen erfüllt:
-
-Beige-grünes Farbschema
-
-Kopfzeile
-
-OpenStreetMap-Karte mit Suchfunktion (Leaflet + Leaflet-Geosearch)
-
-Login-Formular
-
-Steuerelemente zur Skalierung und Umkreiseingabe
-
-Du kannst diese Datei direkt als .html abspeichern und im Browser öffnen:
-
-
-Stattdessen im Chat antworten
-✅ Die HTML-Datei enthält:
-
-Eine OpenStreetMap-Karte mit integrierter Suchfunktion.
-
-Login-Felder (nur UI, keine echte Authentifizierung).
-
-Eingabefeld für Radius und Button zum Zeichnen eines Umkreises auf der Karte.
-
-Farben im beige-grünen Schema.
-
-Du kannst diese Datei direkt öffnen oder weiter anpassen. Möchtest du zusätzlich eine Registrierung, Karten-Export oder eine Umkreissuche für Ergebnisse?
-
-
-
-Keine ausgewähltKeine ausgewählt
-ChatGPT kann Fehler machen. Überprüfe wichtige Informationen. Siehe Cookie-Voreinstellungen.
-ChatGPT: ✅ Die HTML-Datei enthält: - Eine OpenStreetMap-Karte mit integrierter Suchfunktion. - Login-Felder (nur UI, keine echte Authentifizierung). - Eingabefeld für Radius und Button zum Zeichnen eines Umkreises auf der Karte. - Farben im beige-grünen Schema. Du kannst diese Datei direkt öffnen oder weiter anpassen. Möchtest du zusätzlich eine Registrierung, Karten-Export oder eine Umkreissuche für Ergebnisse?
-
-
-Interaktive Karte Webseite
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28
-29
-30
-31
-32
-33
-34
-35
-36
-37
-38
-39
-40
-41
-42
-43
-44
-45
-46
-47
-48
-49
-50
-51
-52
-53
-54
-55
-56
-57
-58
-59
-60
-61
-62
-63
-64
-65
-66
-67
-68
-69
-70
-71
-72
-73
-74
-75
-76
-77
-78
-79
-80
-81
-82
-83
-84
-85
-86
-87
-88
-89
-90
-91
-92
-93
-94
-95
-96
-97
-98
-99
-100
-101
-102
-103
-104
-105
-106
-107
-108
-109
-110
-111
-112
-113
-114
-115
-116
-117
-118
-119
 <!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interaktive Karte</title>
+  <title>Gaudi-Guide</title>
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -175,8 +16,15 @@ Interaktive Karte Webseite
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background-color: #f5f5dc; /* Beige */
-      color: #2e4e1f; /* Dunkelgrün */
+      background-color: #f5f5dc;
+      color: #2e4e1f;
+    }
+    .logo-container {
+      text-align: center;
+      padding-top: 1em;
+    }
+    .logo-container img {
+      max-height: 80px;
     }
     header {
       background-color: #8fbc8f;
@@ -185,8 +33,18 @@ Interaktive Karte Webseite
       font-size: 1.5em;
       color: white;
     }
+    .map-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .ad {
+      width: 120px;
+      margin: 10px;
+    }
     #map {
       height: 500px;
+      flex-grow: 1;
     }
     .container {
       display: flex;
@@ -215,8 +73,30 @@ Interaktive Karte Webseite
   </style>
 </head>
 <body>
-  <header>Interaktive Karte</header>
-  <div id="map"></div>
+  <div class="logo-container">
+    <img src="Logo.png" alt="Gaudi-Guide Logo">
+  </div>
+  <header>Gaudi-Guide</header>
+
+  <div class="map-wrapper">
+    <div class="ad">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+           data-ad-slot="1111111111"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+    </div>
+    <div id="map"></div>
+    <div class="ad">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+           data-ad-slot="2222222222"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+    </div>
+  </div>
 
   <div class="container">
     <div class="form-section">
@@ -237,24 +117,43 @@ Interaktive Karte Webseite
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-geosearch@3.1.0/dist/bundle.min.js"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
   <script>
-    const map = L.map('map').setView([51.1657, 10.4515], 6); // Deutschland Mitte
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
-    }).addTo(map);
+    (adsbygoogle = window.adsbygoogle || []).push({});
+    (adsbygoogle = window.adsbygoogle || []).push({});
 
-    const search = new window.GeoSearch.GeoSearchControl({
-      provider: new window.GeoSearch.OpenStreetMapProvider(),
-      style: 'bar',
-      searchLabel: 'Suche nach Ort',
-    });
-    map.addControl(search);
-
+    let map;
     let circle = null;
+
+    function initMap(position) {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+      map = L.map('map').setView([lat, lon], 13);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
+      }).addTo(map);
+
+      const searchControl = new window.GeoSearch.GeoSearchControl({
+        provider: new window.GeoSearch.OpenStreetMapProvider(),
+        style: 'bar',
+        searchLabel: 'Suche nach Ort',
+        showMarker: true,
+        autoComplete: true,
+        autoCompleteDelay: 250,
+        retainZoomLevel: false,
+        animateZoom: true,
+        keepResult: true,
+      });
+      map.addControl(searchControl);
+
+      drawCircle();
+    }
 
     function drawCircle() {
       const radiusKm = parseFloat(document.getElementById('radius').value);
       if (isNaN(radiusKm)) return;
+      if (!map) return;
       if (circle) map.removeLayer(circle);
 
       const center = map.getCenter();
@@ -270,9 +169,19 @@ Interaktive Karte Webseite
       const user = document.getElementById('username').value;
       const pass = document.getElementById('password').value;
       alert(`Login versucht mit Benutzer: ${user}`);
-      // Hier kannst du später echte Login-Logik hinzufügen
+    }
+
+    window.onload = function() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(initMap, function(error) {
+          alert("Standortzugriff nicht erlaubt oder fehlgeschlagen. Karte wird mit Standardansicht geladen.");
+          initMap({ coords: { latitude: 51.1657, longitude: 10.4515 } }); // Fallback: Deutschland
+        });
+      } else {
+        alert("Geolocation wird von diesem Browser nicht unterstützt.");
+        initMap({ coords: { latitude: 51.1657, longitude: 10.4515 } }); // Fallback: Deutschland
+      }
     }
   </script>
 </body>
 </html>
-

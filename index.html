@@ -1,83 +1,278 @@
+Weiter zum Inhalt
+Du:
+generiere eine website in einem html file. Dabei sollte sie CSS, HTML und JS enthalten. Es soll eine beige, grüne Seite sein, welche unter dem Kopf eine interaktive Karte hat. Nutze dazu beispielsweise Openstreetmap. Füge zusätzlich eine Suchfunktion ein, um Nach orten zu suchen. Unter der Karte soll es zwei felder geben. das eine um sich in einen Account anzumelden und ein anderes, um die Karte zu skalieren und einen umkreis einzuzeichnen
+ChatGPT:
+Hier ist ein vollständiges HTML-File, das deine Anforderungen erfüllt:
+
+Beige-grünes Farbschema
+
+Kopfzeile
+
+OpenStreetMap-Karte mit Suchfunktion (Leaflet + Leaflet-Geosearch)
+
+Login-Formular
+
+Steuerelemente zur Skalierung und Umkreiseingabe
+
+Du kannst diese Datei direkt als .html abspeichern und im Browser öffnen:
+
+
+Stattdessen im Chat antworten
+✅ Die HTML-Datei enthält:
+
+Eine OpenStreetMap-Karte mit integrierter Suchfunktion.
+
+Login-Felder (nur UI, keine echte Authentifizierung).
+
+Eingabefeld für Radius und Button zum Zeichnen eines Umkreises auf der Karte.
+
+Farben im beige-grünen Schema.
+
+Du kannst diese Datei direkt öffnen oder weiter anpassen. Möchtest du zusätzlich eine Registrierung, Karten-Export oder eine Umkreissuche für Ergebnisse?
+
+
+
+Keine ausgewähltKeine ausgewählt
+ChatGPT kann Fehler machen. Überprüfe wichtige Informationen. Siehe Cookie-Voreinstellungen.
+ChatGPT: ✅ Die HTML-Datei enthält: - Eine OpenStreetMap-Karte mit integrierter Suchfunktion. - Login-Felder (nur UI, keine echte Authentifizierung). - Eingabefeld für Radius und Button zum Zeichnen eines Umkreises auf der Karte. - Farben im beige-grünen Schema. Du kannst diese Datei direkt öffnen oder weiter anpassen. Möchtest du zusätzlich eine Registrierung, Karten-Export oder eine Umkreissuche für Ergebnisse?
+
+
+Interaktive Karte Webseite
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Location Explorer</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interaktive Karte</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet-geosearch@3.1.0/dist/geosearch.css"
+  />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f5f5dc; /* Beige */
+      color: #2e4e1f; /* Dunkelgrün */
+    }
+    header {
+      background-color: #8fbc8f;
+      padding: 1em;
+      text-align: center;
+      font-size: 1.5em;
+      color: white;
+    }
+    #map {
+      height: 500px;
+    }
+    .container {
+      display: flex;
+      justify-content: space-around;
+      padding: 2em;
+      background-color: #f0f8f0;
+    }
+    .form-section {
+      width: 40%;
+    }
+    label, input, button {
+      display: block;
+      margin-bottom: 10px;
+      width: 100%;
+      padding: 0.5em;
+    }
+    button {
+      background-color: #8fbc8f;
+      border: none;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #6b8e23;
+    }
+  </style>
 </head>
 <body>
-    <header class="main-header">
-        <div class="header-content">
-            <button class="add-location-button" onclick="window.location.href='login.html'">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="8" x2="12" y2="16"></line>
-                    <line x1="8" y1="12" x2="16" y2="12"></line>
-                </svg>
-                Add Location
-            </button>
-            
-            <div class="logo-container">
-                <div class="logo">LOGO</div>
-                <h1 class="site-title">Location Explorer</h1>
-            </div>
-            
-            <div class="spacer"></div>
-        </div>
-    </header>
-    
-    <main class="main-content">
-        <div class="map-container" id="map"></div>
-    </main>
-    
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        import L from 'leaflet';
+  <header>Interaktive Karte</header>
+  <div id="map"></div>
 
-// Initialize map
-const map = L.map('map').setView([51.505, -0.09], 13);
+  <div class="container">
+    <div class="form-section">
+      <h3>Login</h3>
+      <label for="username">Benutzername</label>
+      <input type="text" id="username" />
+      <label for="password">Passwort</label>
+      <input type="password" id="password" />
+      <button onclick="login()">Anmelden</button>
+    </div>
+    <div class="form-section">
+      <h3>Umkreis einstellen</h3>
+      <label for="radius">Radius in km</label>
+      <input type="number" id="radius" value="5" />
+      <button onclick="drawCircle()">Umkreis zeichnen</button>
+    </div>
+  </div>
 
-// Add tile layer
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-geosearch@3.1.0/dist/bundle.min.js"></script>
+  <script>
+    const map = L.map('map').setView([51.1657, 10.4515], 6); // Deutschland Mitte
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
+    }).addTo(map);
 
-// Check if user is logged in
-function checkAuth() {
-    const user = localStorage.getItem('user');
-    
-    // Update UI based on auth status
-    const addLocationButton = document.querySelector('.add-location-button');
-    
-    if (user) {
-        // User is logged in
-        const userData = JSON.parse(user);
-        addLocationButton.textContent = `Welcome, ${userData.name}`;
-        addLocationButton.onclick = function() {
-            // This would go to a profile page or location add page
-            alert('You are already logged in!');
-        };
-    } else {
-        // User is not logged in
-        addLocationButton.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="16"></line>
-                <line x1="8" y1="12" x2="16" y2="12"></line>
-            </svg>
-            Add Location
-        `;
-        addLocationButton.onclick = function() {
-            window.location.href = 'login.html';
-        };
+    const search = new window.GeoSearch.GeoSearchControl({
+      provider: new window.GeoSearch.OpenStreetMapProvider(),
+      style: 'bar',
+      searchLabel: 'Suche nach Ort',
+    });
+    map.addControl(search);
+
+    let circle = null;
+
+    function drawCircle() {
+      const radiusKm = parseFloat(document.getElementById('radius').value);
+      if (isNaN(radiusKm)) return;
+      if (circle) map.removeLayer(circle);
+
+      const center = map.getCenter();
+      circle = L.circle(center, {
+        radius: radiusKm * 1000,
+        color: 'green',
+        fillColor: '#aaffaa',
+        fillOpacity: 0.3
+      }).addTo(map);
     }
-}
 
-// Run auth check when page loads
-document.addEventListener('DOMContentLoaded', checkAuth);
-    </script>
+    function login() {
+      const user = document.getElementById('username').value;
+      const pass = document.getElementById('password').value;
+      alert(`Login versucht mit Benutzer: ${user}`);
+      // Hier kannst du später echte Login-Logik hinzufügen
+    }
+  </script>
 </body>
 </html>
+

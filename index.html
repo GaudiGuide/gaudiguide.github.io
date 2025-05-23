@@ -4,14 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gaudi-Guide</title>
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet-geosearch@3.1.0/dist/geosearch.css"
-  />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@3.1.0/dist/geosearch.css" />
   <style>
     body {
       margin: 0;
@@ -82,21 +76,11 @@
 
   <div class="map-wrapper">
     <div class="ad">
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-           data-ad-slot="1111111111"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="1111111111" data-ad-format="auto" data-full-width-responsive="true"></ins>
     </div>
     <div id="map"></div>
     <div class="ad">
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-           data-ad-slot="2222222222"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="2222222222" data-ad-format="auto" data-full-width-responsive="true"></ins>
     </div>
   </div>
 
@@ -123,11 +107,13 @@
     let map;
     let circle = null;
     let marker = null;
+    let userLat = 51.1657;
+    let userLon = 10.4515;
 
     function initMap(position) {
-      const lat = position.coords.latitude;
-      const lon = position.coords.longitude;
-      map = L.map('map').setView([lat, lon], 13);
+      userLat = position.coords.latitude;
+      userLon = position.coords.longitude;
+      map = L.map('map').setView([userLat, userLon], 13);
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
@@ -145,6 +131,12 @@
         animateZoom: true,
         keepResult: true,
         updateMap: true,
+        searchBounds: L.latLng(userLat, userLon),
+        sort: (a, b) => {
+          const distA = Math.sqrt(Math.pow(a.y - userLat, 2) + Math.pow(a.x - userLon, 2));
+          const distB = Math.sqrt(Math.pow(b.y - userLat, 2) + Math.pow(b.x - userLon, 2));
+          return distA - distB;
+        }
       });
       map.addControl(searchControl);
 
@@ -152,19 +144,20 @@
         if (marker) map.removeLayer(marker);
         marker = L.marker([result.location.y, result.location.x]).addTo(map);
         map.setView([result.location.y, result.location.x], 13);
+        drawCircle([result.location.y, result.location.x]);
       });
 
-      drawCircle();
+      drawCircle([userLat, userLon]);
     }
 
-    function drawCircle() {
+    function drawCircle(center = null) {
       const radiusKm = parseFloat(document.getElementById('radius').value);
       if (isNaN(radiusKm)) return;
       if (!map) return;
       if (circle) map.removeLayer(circle);
 
-      const center = map.getCenter();
-      circle = L.circle(center, {
+      const currentCenter = center || map.getCenter();
+      circle = L.circle(currentCenter, {
         radius: radiusKm * 1000,
         color: 'green',
         fillColor: '#aaffaa',
@@ -176,11 +169,11 @@
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(initMap, function(error) {
           alert("Standortzugriff nicht erlaubt oder fehlgeschlagen. Karte wird mit Standardansicht geladen.");
-          initMap({ coords: { latitude: 51.1657, longitude: 10.4515 } }); // Fallback: Deutschland
+          initMap({ coords: { latitude: userLat, longitude: userLon } });
         });
       } else {
         alert("Geolocation wird von diesem Browser nicht unterstützt.");
-        initMap({ coords: { latitude: 51.1657, longitude: 10.4515 } }); // Fallback: Deutschland
+        initMap({ coords: { latitude: userLat, longitude: userLon } });
       }
     }
   </script>

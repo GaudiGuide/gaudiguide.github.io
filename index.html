@@ -55,19 +55,21 @@
     .form-section {
       width: 40%;
     }
-    label, input, button {
+    label, input, button, a.button-link {
       display: block;
       margin-bottom: 10px;
       width: 100%;
       padding: 0.5em;
     }
-    button {
+    button, a.button-link {
       background-color: #8fbc8f;
       border: none;
       color: white;
       cursor: pointer;
+      text-align: center;
+      text-decoration: none;
     }
-    button:hover {
+    button:hover, a.button-link:hover {
       background-color: #6b8e23;
     }
   </style>
@@ -101,11 +103,7 @@
   <div class="container">
     <div class="form-section">
       <h3>Login</h3>
-      <label for="username">Benutzername</label>
-      <input type="text" id="username" />
-      <label for="password">Passwort</label>
-      <input type="password" id="password" />
-      <button onclick="login()">Anmelden</button>
+      <a href="https://gaudiguide.github.io/login.html" class="button-link">Location hinzufügen</a>
     </div>
     <div class="form-section">
       <h3>Umkreis einstellen</h3>
@@ -124,6 +122,7 @@
 
     let map;
     let circle = null;
+    let marker = null;
 
     function initMap(position) {
       const lat = position.coords.latitude;
@@ -134,8 +133,9 @@
         attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
       }).addTo(map);
 
+      const provider = new window.GeoSearch.OpenStreetMapProvider();
       const searchControl = new window.GeoSearch.GeoSearchControl({
-        provider: new window.GeoSearch.OpenStreetMapProvider(),
+        provider: provider,
         style: 'bar',
         searchLabel: 'Suche nach Ort',
         showMarker: true,
@@ -144,8 +144,15 @@
         retainZoomLevel: false,
         animateZoom: true,
         keepResult: true,
+        updateMap: true,
       });
       map.addControl(searchControl);
+
+      map.on('geosearch/showlocation', function(result) {
+        if (marker) map.removeLayer(marker);
+        marker = L.marker([result.location.y, result.location.x]).addTo(map);
+        map.setView([result.location.y, result.location.x], 13);
+      });
 
       drawCircle();
     }
@@ -163,12 +170,6 @@
         fillColor: '#aaffaa',
         fillOpacity: 0.3
       }).addTo(map);
-    }
-
-    function login() {
-      const user = document.getElementById('username').value;
-      const pass = document.getElementById('password').value;
-      alert(`Login versucht mit Benutzer: ${user}`);
     }
 
     window.onload = function() {

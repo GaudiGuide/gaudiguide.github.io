@@ -64,13 +64,14 @@
       <label for="password">Passwort</label>
       <input type="password" id="password" required>
       <button type="submit">Einloggen</button>
+      <button type="button" onclick="registerUser()">Registrieren</button>
       <div class="error" id="error"></div>
     </form>
   </div>
 
   <script>
-    const supabaseUrl = 'https://lfptdjesepqdoolcxppw.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmcHRkamVzZXBxZG9vbGN4cHB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MDk3OTMsImV4cCI6MjA2MDM4NTc5M30.i67qj_tTDvx9_TJiWHCo_RT8EnS71ZV7LpJIvlAXiFg';
+    const supabaseUrl = 'https://YOUR-PROJECT.supabase.co';
+    const supabaseKey = 'YOUR-ANON-KEY';
     const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
     const form = document.getElementById('login-form');
@@ -89,6 +90,19 @@
         window.location.href = '/'; // oder weiterleiten zur Karte
       }
     });
+
+    async function registerUser() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      const { error, data } = await supabase.auth.signUp({ email, password });
+
+      if (error) {
+        errorDiv.textContent = error.message;
+      } else {
+        errorDiv.textContent = 'Registrierung erfolgreich. Bitte bestätigen Sie Ihre E-Mail.';
+      }
+    }
   </script>
 </body>
 </html>

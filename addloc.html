@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Location Submitter</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      background-color: #f5f5dc;
+      font-family: Arial, sans-serif;
+      padding: 2em;
+      color: #2f4f4f;
+    }
+    form {
+      background-color: #e0f2e0;
+      padding: 1.5em;
+      border-radius: 10px;
+      max-width: 400px;
+      margin: auto;
+    }
+    label {
+      display: block;
+      margin-top: 1em;
+      font-weight: bold;
+    }
+    input[type="text"], input[type="checkbox"], button {
+      margin-top: 0.5em;
+      padding: 0.5em;
+      width: 100%;
+    }
+    button {
+      background-color: #88b388;
+      color: white;
+      border: none;
+      margin-top: 1.5em;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .status {
+      text-align: center;
+      margin-top: 1em;
+    }
+  </style>
+</head>
+<body>
+
+<h2 style="text-align:center;">Add a New Location</h2>
+<form id="location-form">
+  <label for="name">Name:</label>
+  <input type="text" id="name" required>
+
+  <label for="address">Address:</label>
+  <input type="text" id="address" required>
+
+  <label>
+    <input type="checkbox" id="shown_on_map">
+    Show on Map
+  </label>
+
+  <button type="submit">Submit</button>
+  <div class="status" id="status"></div>
+</form>
+
+<script>
+  const supabase = window.supabase.createClient('https://lfptdjesepqdoolcxppw.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmcHRkamVzZXBxZG9vbGN4cHB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MDk3OTMsImV4cCI6MjA2MDM4NTc5M30.i67qj_tTDvx9_TJiWHCo_RT8EnS71ZV7LpJIvlAXiFg');
+
+  document.getElementById('location-form').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const name = document.getElementById('name').value;
+    const address = document.getElementById('address').value;
+    const shown_on_map = document.getElementById('shown_on_map').checked;
+
+    const { data, error } = await supabase
+      .from('locations')
+      .insert([{ Name: name, Address: address, Shown_on_map: shown_on_map }]);
+
+    const status = document.getElementById('status');
+    if (error) {
+      status.textContent = 'Error: ' + error.message;
+      status.style.color = 'red';
+    } else {
+      status.textContent = 'Location added successfully!';
+      status.style.color = 'green';
+      document.getElementById('location-form').reset();
+    }
+  });
+</script>
+
+</body>
+</html>

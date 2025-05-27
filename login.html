@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Gaudi-Guide</title>
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2">
+        import { createClient } from '@supabase/supabase-js'
+  </script>
   <style>
     body {
       margin: 0;
@@ -77,7 +79,6 @@
   </div>
 
   <script type="module">
-    import { createClient } from '@supabase/supabase-js'
     const supabaseUrl = 'https://lfptdjesepqdoolcxppw.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmcHRkamVzZXBxZG9vbGN4cHB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MDk3OTMsImV4cCI6MjA2MDM4NTc5M30.i67qj_tTDvx9_TJiWHCo_RT8EnS71ZV7LpJIvlAXiFg';
     const supabase = createClient(supabaseUrl, supabaseKey)

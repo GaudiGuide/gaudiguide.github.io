@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Gaudi-Guide</title>
   <script src="https://unpkg.com/@supabase/supabase-js@2">
-        import { createClient } from '@supabase/supabase-js'
+    import { createClient } from '@supabase/supabase-js'
+
+// Create a single supabase client for interacting with your database
+const supabase = createClient('https://xyzcompany.supabase.co', 'public-anon-key')
   </script>
   <style>
     body {

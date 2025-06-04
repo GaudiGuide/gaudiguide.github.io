@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login - Gaudi-Guide</title>
-  <script src="https://unpkg.com/@supabase/supabase-js@2" type="module">
-  </script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2" type="module"></script>
   <style>
     body {
       margin: 0;
@@ -22,7 +21,7 @@
       padding: 2em;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      width: 300px;
+      width: 320px;
     }
     .logo {
       display: block;
@@ -32,7 +31,6 @@
     }
     h2 {
       text-align: center;
-      color: #2e4e1f;
     }
     label, input, button {
       display: block;
@@ -60,59 +58,141 @@
       font-size: 0.9em;
       text-align: center;
     }
+    .success {
+      color: green;
+      font-size: 0.9em;
+      text-align: center;
+    }
+    .back-button {
+      margin-bottom: 20px;
+    }
+
+    /* Modal styles */
+    #login-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+
+    #login-modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 300px;
+      text-align: center;
+    }
+
+    #login-modal a {
+      color: #2e4e1f;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
   <div class="login-container">
-    <a href="index.html"> 
-    <button type="button">zurück </button>
+    <a href="index.html">
+      <button type="button" class="back-button">Zurück</button>
     </a>
-      <img src="Logo.png" alt="Logo" class="logo">
-        <h2>Login</h2>
+    <img src="Logo.png" alt="Logo" class="logo" />
+    <h2>Login</h2>
     <form id="login-form">
       <label for="email">E-Mail</label>
-      <input type="email" id="email" required>
+      <input type="email" id="email" required />
       <label for="password">Passwort</label>
-      <input type="password" id="password" required>
-      <button type="submit">Einloggen</button>
+      <input type="password" id="password" required />
+      <button type="submit" id="login-button">Einloggen</button>
       <button type="button" onclick="registerUser()">Registrieren</button>
-      <div class="error" id="error"></div>
+      <div id="message" class="error"></div>
     </form>
   </div>
 
+  <!-- Modal -->
+  <div id="login-modal">
+    <div id="login-modal-content">
+      <h3>Erfolgreich eingeloggt!</h3>
+      <p>Du wirst gleich weitergeleitet oder kannst <a href="addloc.html">hier klicken</a>.</p>
+      <button onclick="redirectNow()">Jetzt weiter</button>
+    </div>
+  </div>
+
   <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
     const supabaseUrl = 'https://lfptdjesepqdoolcxppw.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmcHRkamVzZXBxZG9vbGN4cHB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MDk3OTMsImV4cCI6MjA2MDM4NTc5M30.i67qj_tTDvx9_TJiWHCo_RT8EnS71ZV7LpJIvlAXiFg';
-    const supabase = createClient(supabaseUrl, supabaseKey)
+    const supabaseKey = 'PASTE_YOUR_PUBLIC_ANON_KEY_HERE'; // <-- Nur den öffentlichen anon key verwenden
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     const form = document.getElementById('login-form');
-    const errorDiv = document.getElementById('error');
+    const errorDiv = document.getElementById('message');
+    const loginBtn = document.getElementById('login-button');
+    const modal = document.getElementById('login-modal');
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      if (!email || !password) {
+        showMessage('Bitte E-Mail und Passwort eingeben.');
+        return;
+      }
+
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Einloggen...';
 
       const { error, data } = await supabase.auth.signInWithPassword({ email, password });
 
       if (error) {
-        errorDiv.textContent = error.message;
+        showMessage(error.message);
       } else {
-        window.location.href = '/'; // oder weiterleiten zur Karte
+        showMessage('');
+        modal.style.display = 'flex';
+
+        // Automatische Weiterleitung nach 5 Sekunden
+        setTimeout(() => {
+          redirectNow();
+        }, 5000);
       }
+
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Einloggen';
     });
 
     async function registerUser() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      if (!email || !password) {
+        showMessage('Bitte E-Mail und Passwort eingeben.');
+        return;
+      }
+
+      if (password.length < 6) {
+        showMessage('Passwort muss mindestens 6 Zeichen lang sein.');
+        return;
+      }
 
       const { error, data } = await supabase.auth.signUp({ email, password });
 
       if (error) {
-        errorDiv.textContent = error.message;
+        showMessage(error.message);
       } else {
-        errorDiv.textContent = 'Registrierung erfolgreich. Bitte bestätigen Sie Ihre E-Mail.';
+        showMessage('Registrierung erfolgreich. Bitte E-Mail bestätigen.', true);
       }
+    }
+
+    function showMessage(msg, success = false) {
+      errorDiv.textContent = msg;
+      errorDiv.className = success ? 'success' : 'error';
+    }
+
+    function redirectNow() {
+      window.location.href = 'addloc.html';
     }
   </script>
 </body>

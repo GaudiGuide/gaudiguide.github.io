@@ -159,6 +159,7 @@
     );
 
     let map, marker = null, circle = null;
+    let userLat = 51.1657, userLon = 10.4515;
     let supabaseMarkers = [];
 
     function drawCircle(lat, lon) {
@@ -220,8 +221,8 @@
     }
 
     function initMap(position) {
-      let userLat = position.coords.latitude;
-      let userLon = position.coords.longitude;
+      userLat = position.coords.latitude;
+      userLon = position.coords.longitude;
 
       map = L.map("map").setView([userLat, userLon], 13);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -236,47 +237,39 @@
         style: 'bar',
         autoComplete: true,
         autoCompleteDelay: 25,
-        showMarker: false, // Marker setzen wir selbst
+        showMarker: true,
         retainZoomLevel: false,
         animateZoom: true,
         keepResult: true
       });
       map.addControl(searchControl);
 
-      // Suche: Kreis und Marker an Suchposition setzen
+      // Event: Wenn ein neuer Ort gesucht wurde
       map.on("geosearch/showlocation", function (result) {
         const lat = result.location.y;
         const lon = result.location.x;
-        map.setView([lat, lon], 13);
+        // Sanft zur neuen Location schwenken
+        map.flyTo([lat, lon], 13, { animate: true, duration: 1.5 });
+        // Kreis am neuen Ort zeichnen
         drawCircle(lat, lon);
       });
 
-      // Radius-Eingabe: Kreis neu zeichnen an aktuellem Marker
-      document.getElementById("radius").addEventListener("input", () => {
-        if (marker) {
-          const { lat, lng } = marker.getLatLng();
-          drawCircle(lat, lng);
-        }
-      });
-
-      // Startkreis am Nutzerstandort
-      drawCircle(userLat, userLon);
+      document.getElementById("radius").addEventListener("input", () => drawCircle());
+      drawCircle();
     }
 
     window.onload = function () {
-      let defaultLat = 51.1657;
-      let defaultLon = 10.4515;
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           initMap,
           function () {
             alert("Standortzugriff nicht erlaubt. Standardposition wird verwendet.");
-            initMap({ coords: { latitude: defaultLat, longitude: defaultLon } });
+            initMap({ coords: { latitude: userLat, longitude: userLon } });
           }
         );
       } else {
         alert("Geolocation wird nicht unterstützt.");
-        initMap({ coords: { latitude: defaultLat, longitude: defaultLon } });
+        initMap({ coords: { latitude: userLat, longitude: userLon } });
       }
     };
   </script>

@@ -120,80 +120,85 @@
     </div>
   </div>
 
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-    const supabaseUrl = 'https://lfptdjesepqdoolcxppw.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmcHRkamVzZXBxZG9vbGN4cHB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MDk3OTMsImV4cCI6MjA2MDM4NTc5M30.i67qj_tTDvx9_TJiWHCo_RT8EnS71ZV7LpJIvlAXiFg'; // <-- Nur den öffentlichen anon key verwenden
-    const supabase = createClient(supabaseUrl, supabaseKey);
+  const supabaseUrl = 'https://lfptdjesepqdoolcxppw.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmcHRkamVzZXBxZG9vbGN4cHB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MDk3OTMsImV4cCI6MjA2MDM4NTc5M30.i67qj_tTDvx9_TJiWHCo_RT8EnS71ZV7LpJIvlAXiFg'; // Nur den anonymen öffentlichen Schlüssel verwenden
+  const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const form = document.getElementById('login-form');
-    const errorDiv = document.getElementById('message');
-    const loginBtn = document.getElementById('login-button');
-    const modal = document.getElementById('login-modal');
+  const form = document.getElementById('login-form');
+  const errorDiv = document.getElementById('message');
+  const loginBtn = document.getElementById('login-button');
+  const modal = document.getElementById('login-modal');
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value.trim();
 
-      if (!email || !password) {
-        showMessage('Bitte E-Mail und Passwort eingeben.');
-        return;
-      }
-
-      loginBtn.disabled = true;
-      loginBtn.textContent = 'Einloggen...';
-
-      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
-
-      if (error) {
-        showMessage(error.message);
-      } else {
-        showMessage('');
-        modal.style.display = 'flex';
-
-        // Automatische Weiterleitung nach 5 Sekunden
-        setTimeout(() => {
-          redirectNow();
-        }, 5000);
-      }
-
-      loginBtn.disabled = false;
-      loginBtn.textContent = 'Einloggen';
-    });
-
-    async function registerUser() {
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
-
-      if (!email || !password) {
-        showMessage('Bitte E-Mail und Passwort eingeben.');
-        return;
-      }
-
-      if (password.length < 6) {
-        showMessage('Passwort muss mindestens 6 Zeichen lang sein.');
-        return;
-      }
-
-      const { error, data } = await supabase.auth.signUp({ email, password });
-
-      if (error) {
-        showMessage(error.message);
-      } else {
-        showMessage('Registrierung erfolgreich. Bitte E-Mail bestätigen.', true);
-      }
+    if (!email || !password) {
+      showMessage('Bitte E-Mail und Passwort eingeben.');
+      return;
     }
 
-    function showMessage(msg, success = false) {
-      errorDiv.textContent = msg;
-      errorDiv.className = success ? 'success' : 'error';
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Einloggen...';
+
+    const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      showMessage(error.message);
+    } else {
+      showMessage('');
+      modal.style.display = 'flex';
+
+      // Automatische Weiterleitung nach 5 Sekunden
+      setTimeout(() => {
+        redirectNow();
+      }, 5000);
     }
 
-    function redirectNow() {
-      window.location.href = 'addloc.html';
+    loginBtn.disabled = false;
+    loginBtn.textContent = 'Einloggen';
+  });
+
+  async function registerUser() {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value.trim();
+
+    if (!email || !password) {
+      showMessage('Bitte E-Mail und Passwort eingeben.');
+      return;
     }
-  </script>
+
+    if (password.length < 6) {
+      showMessage('Passwort muss mindestens 6 Zeichen lang sein.');
+      return;
+    }
+
+    const { error, data } = await supabase.auth.signUp({ email, password });
+
+    if (error) {
+      showMessage(error.message);
+    } else {
+      showMessage('Registrierung erfolgreich. Bitte E-Mail bestätigen.', true);
+    }
+  }
+
+  function showMessage(msg, success = false) {
+    errorDiv.textContent = msg;
+    errorDiv.className = success ? 'success' : 'error';
+  }
+
+  function redirectNow() {
+    window.location.href = 'addloc.html';
+  }
+
+  // 👇 Diese Zeile macht die Funktionen global verfügbar für onclick=""
+  window.registerUser = registerUser;
+  window.redirectNow = redirectNow;
+</script>
+
 </body>
 </html>

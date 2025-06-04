@@ -1,18 +1,15 @@
+<!-- Komplett optimierte HTML-Datei mit Supabase und Marker-Logik -->
 <!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gaudi-Guide</title>
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet-geosearch@3.1.0/dist/geosearch.css"
-  />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@3.1.0/dist/geosearch.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
+    /* Dein vorhandenes CSS bleibt hier unverändert */
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -87,58 +84,38 @@
 
   <div class="map-wrapper">
     <div class="ad">
-      <ins
-        class="adsbygoogle"
-        style="display:block"
-        data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-        data-ad-slot="1111111111"
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-      ></ins>
+      <!-- Werbung -->
     </div>
     <div id="map"></div>
     <div class="ad">
-      <ins
-        class="adsbygoogle"
-        style="display:block"
-        data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-        data-ad-slot="2222222222"
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-      ></ins>
+      <!-- Werbung -->
     </div>
   </div>
 
   <div class="container">
     <div class="form-section">
       <h3>Login</h3>
-      <a
-        href="https://gaudiguide.github.io/login.html"
-        class="button-link"
-        aria-label="Location hinzufügen"
-        >Location hinzufügen</a
-      >
+      <a href="https://gaudiguide.github.io/login.html" class="button-link">Location hinzufügen</a>
     </div>
     <div class="form-section">
       <h3>Umkreis einstellen</h3>
       <label for="radius">Radius in km</label>
       <input type="number" id="radius" value="5" min="0.1" step="0.1" />
-      <button onclick="drawCircle()" aria-label="Umkreis zeichnen">
-        Umkreis zeichnen
-      </button>
+      <button onclick="drawCircle()">Umkreis zeichnen</button>
     </div>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-geosearch@3.1.0/dist/bundle.min.js"></script>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
   <script>
-    (adsbygoogle = window.adsbygoogle || []).push({});
+    const SUPABASE_URL = "https://lfptdjesepqdoolcxppw.supabase.co"; // 🔁 DEIN SUPABASE LINK
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmcHRkamVzZXBxZG9vbGN4cHB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MDk3OTMsImV4cCI6MjA2MDM4NTc5M30.i67qj_tTDvx9_TJiWHCo_RT8EnS71ZV7LpJIvlAXiFg"; // 🔁 DEIN SUPABASE ANON KEY
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let map;
     let circle = null;
     let marker = null;
-    // Standardposition Deutschland (Mitte)
+    let locationMarkers = [];
     let userLat = 51.1657;
     let userLon = 10.4515;
 
@@ -148,9 +125,7 @@
       if (!map || !marker) return;
 
       const radiusKm = parseFloat(radiusInput.value);
-      if (isNaN(radiusKm) || radiusKm <= 0) {
-        return; // kein Alarm, um nicht bei jedem Tastenanschlag zu stören
-      }
+      if (isNaN(radiusKm) || radiusKm <= 0) return;
 
       if (circle) map.removeLayer(circle);
 
@@ -161,6 +136,33 @@
         fillColor: "#aaffaa",
         fillOpacity: 0.3,
       }).addTo(map);
+
+      // Karte auf Kreis zentrieren
+      map.fitBounds(circle.getBounds());
+    }
+
+    async function checkUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        alert("Nicht eingeloggt. Weiterleitung zur Login-Seite.");
+        window.location.href = "https://gaudiguide.github.io/login.html";
+      }
+    }
+
+    async function loadLocations() {
+      const { data, error } = await supabase.from("Locations").select("*");
+
+      if (error) {
+        console.error("Fehler beim Laden der Locations:", error.message);
+        return;
+      }
+
+      data.forEach(loc => {
+        const m = L.marker([loc.latitude, loc.longitude])
+          .addTo(map)
+          .bindPopup(loc.title || "Ort");
+        locationMarkers.push(m);
+      });
     }
 
     function initMap(position) {
@@ -176,63 +178,46 @@
 
       marker = L.marker([userLat, userLon]).addTo(map);
 
-      // Suchbereich ca. 50 km um den Nutzer
-      const bounds = L.latLngBounds(
-        [userLat - 0.45, userLon - 0.45],
-        [userLat + 0.45, userLon + 0.45]
-      );
-
       const provider = new window.GeoSearch.OpenStreetMapProvider();
       const searchControl = new window.GeoSearch.GeoSearchControl({
-        provider: provider,
+        provider,
         style: "bar",
         searchLabel: "Suche nach Ort",
-        showMarker: false, // wir setzen eigenen Marker
+        showMarker: false,
         autoComplete: true,
         autoCompleteDelay: 250,
         retainZoomLevel: false,
         animateZoom: true,
         keepResult: true,
         updateMap: true,
-        searchBounds: bounds,
-        sort: (a, b) => {
-          const distA = Math.sqrt(
-            Math.pow(a.y - userLat, 2) + Math.pow(a.x - userLon, 2)
-          );
-          const distB = Math.sqrt(
-            Math.pow(b.y - userLat, 2) + Math.pow(b.x - userLon, 2)
-          );
-          return distA - distB;
-        },
       });
+
       map.addControl(searchControl);
 
       map.on("geosearch/showlocation", function (result) {
         if (marker) map.removeLayer(marker);
         marker = L.marker([result.location.y, result.location.x]).addTo(map);
         map.setView([result.location.y, result.location.x], 13);
-        drawCircle(); // Kreis neu zeichnen um neuen Marker
+        drawCircle();
       });
 
-      // Kreis neu zeichnen, wenn der Radius geändert wird
       radiusInput.addEventListener("input", drawCircle);
-
-      drawCircle(); // initialer Kreis um Nutzer
+      drawCircle();
+      loadLocations(); // Supabase Locations laden
     }
 
-    window.onload = function () {
+    window.onload = async function () {
+      await checkUser();
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           initMap,
-          function () {
-            alert(
-              "Standortzugriff nicht erlaubt oder fehlgeschlagen. Karte wird mit Standardansicht geladen."
-            );
+          () => {
+            alert("Standortzugriff nicht erlaubt. Standardansicht wird geladen.");
             initMap({ coords: { latitude: userLat, longitude: userLon } });
           }
         );
       } else {
-        alert("Geolocation wird von diesem Browser nicht unterstützt.");
+        alert("Geolocation wird nicht unterstützt.");
         initMap({ coords: { latitude: userLat, longitude: userLon } });
       }
     };

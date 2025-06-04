@@ -151,6 +151,8 @@
   <script src="https://unpkg.com/leaflet-geosearch@3.1.0/dist/bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script src="https://unpkg.com/leaflet-geosearch@3.1.0/dist/bundle.min.js"></script>
+
 
   <script>
     const supabase = window.supabase.createClient(
@@ -180,10 +182,11 @@
     async function loadLocationsWithRadius(lat, lon, radiusKm) {
       try {
         document.getElementById("loader").style.display = "block";
-        const { data, error } = await supabase.rpc("get_locations_within_radius", {
-          lat_input: lat,
-          lon_input: lon,
-          radius_km: radiusKm
+        const { data, error } = await supabase
+        .rpc('get_locations_within_radius', {
+        lat_input: userLat,
+        lon_input: userLon,
+        radius_km: parseFloat(radiusInput.value),
         });
         if (error) throw error;
         supabaseMarkers.forEach(m => map.removeLayer(m));
@@ -212,12 +215,12 @@
 
       marker = L.marker([userLat, userLon]).addTo(map);
 
-      const provider = new window.GeoSearch.OpenStreetMapProvider();
+      const provider = new GeoSearch.OpenStreetMapProvider();
       const searchControl = new window.GeoSearch.GeoSearchControl({
         provider: provider,
         style: 'bar',
         autoComplete: true,
-        autoCompleteDelay: 250,
+        autoCompleteDelay: 25,
         showMarker: true,
         retainZoomLevel: false,
         animateZoom: true,

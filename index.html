@@ -1,144 +1,257 @@
-<!-- ... ab <head> -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gaudi-Guide</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@3.1.0/dist/geosearch.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f5f5dc;
+      color: #2e4e1f;
+    }
+    .logo-container {
+      text-align: center;
+      padding-top: 1em;
+    }
+    .logo-container img {
+      max-height: 80px;
+    }
+    header {
+      background-color: #8fbc8f;
+      padding: 1em;
+      text-align: center;
+      font-size: 1.5em;
+      color: white;
+    }
+    .map-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .ad {
+      width: 10%;
+      margin: 10px;
+    }
+    #map {
+      height: 500px;
+      flex-grow: 1;
+    }
+    .container {
+      display: flex;
+      justify-content: space-around;
+      padding: 2em;
+      background-color: #f0f8f0;
+    }
+    .form-section {
+      width: 40%;
+    }
+    label,
+    input,
+    button,
+    a.button-link {
+      display: block;
+      margin-bottom: 10px;
+      width: 100%;
+      padding: 0.5em;
+    }
+    button,
+    a.button-link {
+      background-color: #8fbc8f;
+      border: none;
+      color: white;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+    }
+    button:hover,
+    a.button-link:hover {
+      background-color: #6b8e23;
+    }
+  </style>
+</head>
+<body>
+  <div class="logo-container">
+    <img src="Logo.png" alt="Gaudi-Guide Logo" />
+  </div>
+  <header>Gaudi-Guide</header>
 
-<!-- MarkerCluster CSS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+  <div class="map-wrapper">
+    <div class="ad">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+           data-ad-slot="1111111111"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+    </div>
+    <div id="map"></div>
+    <div class="ad">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+           data-ad-slot="2222222222"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+    </div>
+  </div>
 
-<!-- ... am Ende von <body> -->
+  <div class="container">
+    <div class="form-section">
+      <h3>Login</h3>
+      <a href="https://gaudiguide.github.io/login.html" class="button-link">Location hinzufügen</a>
+    </div>
+    <div class="form-section">
+      <h3>Umkreis einstellen</h3>
+      <label for="radius">Radius in km</label>
+      <input type="number" id="radius" value="5" min="0.1" step="0.1" />
+      <button onclick="drawCircle()">Umkreis zeichnen</button>
+    </div>
+  </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-geosearch@3.1.0/dist/bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 
-<script>
-  const supabase = supabase.createClient(
-    "https://lfptdjesepqdoolcxppw.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmcHRkamVzZXBxZG9vbGN4cHB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MDk3OTMsImV4cCI6MjA2MDM4NTc5M30.i67qj_tTDvx9_TJiWHCo_RT8EnS71ZV7LpJIvlAXiFg"
-  );
+  <script>
+    const supabase = supabase.createClient(
+      "https://lfptdjesepqdoolcxppw.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmcHRkamVzZXBxZG9vbGN4cHB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MDk3OTMsImV4cCI6MjA2MDM4NTc5M30.i67qj_tTDvx9_TJiWHCo_RT8EnS71ZV7LpJIvlAXiFg"
+    );
 
-  let map;
-  let circle = null;
-  let marker = null;
-  let userLat = 51.1657;
-  let userLon = 10.4515;
-  let markerGroup;
-  const radiusInput = document.getElementById("radius");
+    let map;
+    let circle = null;
+    let marker = null;
+    let userLat = 51.1657;
+    let userLon = 10.4515;
+    let markerGroup;
+    const radiusInput = document.getElementById("radius");
 
-  function drawCircle() {
-    if (!map || !marker) return;
+    function drawCircle() {
+      if (!map || !marker) return;
 
-    const radiusKm = parseFloat(radiusInput.value);
-    if (isNaN(radiusKm) || radiusKm <= 0) return;
+      const radiusKm = parseFloat(radiusInput.value);
+      if (isNaN(radiusKm) || radiusKm <= 0) return;
 
-    if (circle) map.removeLayer(circle);
+      if (circle) map.removeLayer(circle);
 
-    const center = marker.getLatLng();
-    circle = L.circle(center, {
-      radius: radiusKm * 1000,
-      color: "green",
-      fillColor: "#aaffaa",
-      fillOpacity: 0.3,
-    }).addTo(map);
+      const center = marker.getLatLng();
+      circle = L.circle(center, {
+        radius: radiusKm * 1000,
+        color: "green",
+        fillColor: "#aaffaa",
+        fillOpacity: 0.3,
+      }).addTo(map);
 
-    loadLocations(); // neu filtern
-  }
-
-  function isWithinRadius(lat, lon, centerLat, centerLon, radiusKm) {
-    const R = 6371; // km
-    const dLat = ((lat - centerLat) * Math.PI) / 180;
-    const dLon = ((lon - centerLon) * Math.PI) / 180;
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos((centerLat * Math.PI) / 180) *
-        Math.cos((lat * Math.PI) / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c;
-    return distance <= radiusKm;
-  }
-
-  async function loadLocations() {
-    if (!map || !markerGroup) return;
-
-    markerGroup.clearLayers();
-
-    const { data, error } = await supabase.from("Locations").select("*");
-    if (error) {
-      console.error("Fehler beim Laden:", error.message);
-      return;
+      loadLocations();
     }
 
-    const center = marker.getLatLng();
-    const radiusKm = parseFloat(radiusInput.value);
+    function isWithinRadius(lat, lon, centerLat, centerLon, radiusKm) {
+      const R = 6371;
+      const dLat = ((lat - centerLat) * Math.PI) / 180;
+      const dLon = ((lon - centerLon) * Math.PI) / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos((centerLat * Math.PI) / 180) *
+          Math.cos((lat * Math.PI) / 180) *
+          Math.sin(dLon / 2) *
+          Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const distance = R * c;
+      return distance <= radiusKm;
+    }
 
-    data.forEach((loc) => {
-      if (!loc.latitude || !loc.longitude) return;
+    async function loadLocations() {
+      if (!map || !markerGroup) return;
 
-      if (isWithinRadius(loc.latitude, loc.longitude, center.lat, center.lng, radiusKm)) {
-        const popup = `
-          <strong>${loc.name || "Ohne Name"}</strong><br/>
-          ${loc.description || ""}<br/>
-          <em>${loc.hours || ""}</em>
-        `;
+      markerGroup.clearLayers();
 
-        L.marker([loc.latitude, loc.longitude])
-          .bindPopup(popup)
-          .addTo(markerGroup);
+      const { data, error } = await supabase.from("Locations").select("*");
+      if (error) {
+        console.error("Fehler beim Laden:", error.message);
+        return;
       }
-    });
-  }
 
-  function initMap(position) {
-    userLat = position.coords.latitude;
-    userLon = position.coords.longitude;
+      const center = marker.getLatLng();
+      const radiusKm = parseFloat(radiusInput.value);
 
-    map = L.map("map").setView([userLat, userLon], 13);
+      data.forEach((loc) => {
+        if (!loc.latitude || !loc.longitude) return;
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
-    }).addTo(map);
+        if (isWithinRadius(loc.latitude, loc.longitude, center.lat, center.lng, radiusKm)) {
+          const popup = `
+            <strong>${loc.name || "Ohne Name"}</strong><br/>
+            ${loc.description || ""}<br/>
+            <em>${loc.hours || ""}</em>
+          `;
 
-    markerGroup = L.markerClusterGroup();
-    map.addLayer(markerGroup);
-
-    marker = L.marker([userLat, userLon]).addTo(map);
-
-    const provider = new window.GeoSearch.OpenStreetMapProvider();
-    const searchControl = new window.GeoSearch.GeoSearchControl({
-      provider: provider,
-      style: "bar",
-      searchLabel: "Suche nach Ort",
-      showMarker: false,
-      autoComplete: true,
-      retainZoomLevel: false,
-      keepResult: true,
-      updateMap: true,
-    });
-    map.addControl(searchControl);
-
-    map.on("geosearch/showlocation", function (result) {
-      if (marker) map.removeLayer(marker);
-      marker = L.marker([result.location.y, result.location.x]).addTo(map);
-      map.setView([result.location.y, result.location.x], 13);
-      drawCircle();
-    });
-
-    radiusInput.addEventListener("input", drawCircle);
-    drawCircle();
-  }
-
-  window.onload = function () {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        initMap,
-        function () {
-          alert("Standortzugriff fehlgeschlagen. Standardposition wird verwendet.");
-          initMap({ coords: { latitude: userLat, longitude: userLon } });
+          L.marker([loc.latitude, loc.longitude])
+            .bindPopup(popup)
+            .addTo(markerGroup);
         }
-      );
-    } else {
-      alert("Geolocation wird nicht unterstützt.");
-      initMap({ coords: { latitude: userLat, longitude: userLon } });
+      });
     }
-  };
-</script>
+
+    function initMap(position) {
+      userLat = position.coords.latitude;
+      userLon = position.coords.longitude;
+
+      map = L.map("map").setView([userLat, userLon], 13);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+      }).addTo(map);
+
+      markerGroup = L.markerClusterGroup();
+      map.addLayer(markerGroup);
+
+      marker = L.marker([userLat, userLon]).addTo(map);
+
+      const provider = new window.GeoSearch.OpenStreetMapProvider();
+      const searchControl = new window.GeoSearch.GeoSearchControl({
+        provider: provider,
+        style: "bar",
+        searchLabel: "Suche nach Ort",
+        showMarker: false,
+        autoComplete: true,
+        retainZoomLevel: false,
+        keepResult: true,
+        updateMap: true,
+      });
+      map.addControl(searchControl);
+
+      map.on("geosearch/showlocation", function (result) {
+        if (marker) map.removeLayer(marker);
+        marker = L.marker([result.location.y, result.location.x]).addTo(map);
+        map.setView([result.location.y, result.location.x], 13);
+        drawCircle();
+      });
+
+      radiusInput.addEventListener("input", drawCircle);
+      drawCircle();
+    }
+
+    window.onload = function () {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          initMap,
+          function () {
+            alert("Standortzugriff fehlgeschlagen. Standardposition wird verwendet.");
+            initMap({ coords: { latitude: userLat, longitude: userLon } });
+          }
+        );
+      } else {
+        alert("Geolocation wird nicht unterstützt.");
+        initMap({ coords: { latitude: userLat, longitude: userLon } });
+      }
+    };
+  </script>
+</body>
+</html>

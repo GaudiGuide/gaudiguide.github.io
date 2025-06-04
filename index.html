@@ -1,11 +1,17 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gaudi-Guide</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@3.1.0/dist/geosearch.css" />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet-geosearch@3.1.0/dist/geosearch.css"
+  />
   <style>
     body {
       margin: 0;
@@ -49,13 +55,17 @@
     .form-section {
       width: 40%;
     }
-    label, input, button, a.button-link {
+    label,
+    input,
+    button,
+    a.button-link {
       display: block;
       margin-bottom: 10px;
       width: 100%;
       padding: 0.5em;
     }
-    button, a.button-link {
+    button,
+    a.button-link {
       background-color: #8fbc8f;
       border: none;
       color: white;
@@ -63,37 +73,59 @@
       text-align: center;
       text-decoration: none;
     }
-    button:hover, a.button-link:hover {
+    button:hover,
+    a.button-link:hover {
       background-color: #6b8e23;
     }
   </style>
 </head>
 <body>
   <div class="logo-container">
-    <img src="Logo.png" alt="Gaudi-Guide Logo">
+    <img src="Logo.png" alt="Gaudi-Guide Logo" />
   </div>
   <header>Gaudi-Guide</header>
 
   <div class="map-wrapper">
     <div class="ad">
-      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="1111111111" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <ins
+        class="adsbygoogle"
+        style="display:block"
+        data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+        data-ad-slot="1111111111"
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      ></ins>
     </div>
     <div id="map"></div>
     <div class="ad">
-      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="2222222222" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <ins
+        class="adsbygoogle"
+        style="display:block"
+        data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+        data-ad-slot="2222222222"
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      ></ins>
     </div>
   </div>
 
   <div class="container">
     <div class="form-section">
       <h3>Login</h3>
-      <a href="https://gaudiguide.github.io/login.html" class="button-link">Location hinzufügen</a>
+      <a
+        href="https://gaudiguide.github.io/login.html"
+        class="button-link"
+        aria-label="Location hinzufügen"
+        >Location hinzufügen</a
+      >
     </div>
     <div class="form-section">
       <h3>Umkreis einstellen</h3>
       <label for="radius">Radius in km</label>
-      <input type="number" id="radius" value="5" />
-      <button onclick="drawCircle()">Umkreis zeichnen</button>
+      <input type="number" id="radius" value="5" min="0.1" step="0.1" />
+      <button onclick="drawCircle()" aria-label="Umkreis zeichnen">
+        Umkreis zeichnen
+      </button>
     </div>
   </div>
 
@@ -102,45 +134,61 @@
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
   <script>
     (adsbygoogle = window.adsbygoogle || []).push({});
-    (adsbygoogle = window.adsbygoogle || []).push({});
 
     let map;
     let circle = null;
     let marker = null;
+    // Standardposition Deutschland (Mitte)
     let userLat = 51.1657;
     let userLon = 10.4515;
 
     function initMap(position) {
       userLat = position.coords.latitude;
       userLon = position.coords.longitude;
-      map = L.map('map').setView([userLat, userLon], 13);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
+      map = L.map("map").setView([userLat, userLon], 13);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution:
+          'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
       }).addTo(map);
+
+      // Marker am Startpunkt setzen
+      marker = L.marker([userLat, userLon]).addTo(map);
+
+      // Suchbereich ca. 50 km um den Nutzer
+      const bounds = L.latLngBounds(
+        [userLat - 0.45, userLon - 0.45],
+        [userLat + 0.45, userLon + 0.45]
+      );
 
       const provider = new window.GeoSearch.OpenStreetMapProvider();
       const searchControl = new window.GeoSearch.GeoSearchControl({
         provider: provider,
-        style: 'bar',
-        searchLabel: 'Suche nach Ort',
-        showMarker: true,
+        style: "bar",
+        searchLabel: "Suche nach Ort",
+        showMarker: false, // wir setzen eigenen Marker
         autoComplete: true,
         autoCompleteDelay: 250,
         retainZoomLevel: false,
         animateZoom: true,
         keepResult: true,
         updateMap: true,
-        searchBounds: L.latLng(userLat, userLon),
+        searchBounds: bounds,
         sort: (a, b) => {
-          const distA = Math.sqrt(Math.pow(a.y - userLat, 2) + Math.pow(a.x - userLon, 2));
-          const distB = Math.sqrt(Math.pow(b.y - userLat, 2) + Math.pow(b.x - userLon, 2));
+          const distA = Math.sqrt(
+            Math.pow(a.y - userLat, 2) + Math.pow(a.x - userLon, 2)
+          );
+          const distB = Math.sqrt(
+            Math.pow(b.y - userLat, 2) + Math.pow(b.x - userLon, 2)
+          );
           return distA - distB;
-        }
+        },
       });
       map.addControl(searchControl);
 
-      map.on('geosearch/showlocation', function(result) {
+      map.on("geosearch/showlocation", function (result) {
+        // Alten Marker entfernen, neuen setzen
         if (marker) map.removeLayer(marker);
         marker = L.marker([result.location.y, result.location.x]).addTo(map);
         map.setView([result.location.y, result.location.x], 13);
@@ -151,31 +199,41 @@
     }
 
     function drawCircle(center = null) {
-      const radiusKm = parseFloat(document.getElementById('radius').value);
-      if (isNaN(radiusKm)) return;
       if (!map) return;
+
+      const radiusKm = parseFloat(document.getElementById("radius").value);
+      if (isNaN(radiusKm) || radiusKm <= 0) {
+        alert("Bitte einen positiven Radius eingeben.");
+        return;
+      }
+
       if (circle) map.removeLayer(circle);
 
       const currentCenter = center || map.getCenter();
       circle = L.circle(currentCenter, {
         radius: radiusKm * 1000,
-        color: 'green',
-        fillColor: '#aaffaa',
-        fillOpacity: 0.3
+        color: "green",
+        fillColor: "#aaffaa",
+        fillOpacity: 0.3,
       }).addTo(map);
     }
 
-    window.onload = function() {
+    window.onload = function () {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(initMap, function(error) {
-          alert("Standortzugriff nicht erlaubt oder fehlgeschlagen. Karte wird mit Standardansicht geladen.");
-          initMap({ coords: { latitude: userLat, longitude: userLon } });
-        });
+        navigator.geolocation.getCurrentPosition(
+          initMap,
+          function (error) {
+            alert(
+              "Standortzugriff nicht erlaubt oder fehlgeschlagen. Karte wird mit Standardansicht geladen."
+            );
+            initMap({ coords: { latitude: userLat, longitude: userLon } });
+          }
+        );
       } else {
         alert("Geolocation wird von diesem Browser nicht unterstützt.");
         initMap({ coords: { latitude: userLat, longitude: userLon } });
       }
-    }
+    };
   </script>
 </body>
 </html>

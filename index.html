@@ -4,14 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gaudi-Guide</title>
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet-geosearch@3.1.0/dist/geosearch.css"
-  />
+
+  <!-- Leaflet & GeoSearch Styles -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@3.1.0/dist/geosearch.css" />
+
   <style>
     body {
       margin: 0;
@@ -55,33 +52,21 @@
     .form-section {
       width: 40%;
     }
-    label,
-    input,
-    button,
-    a.button-link {
+    label, input, button, a.button-link {
       display: block;
       margin-bottom: 10px;
       width: 100%;
       padding: 0.5em;
-      font-size: 1rem;
-      box-sizing: border-box;
     }
-    input, button {
-      border: 1px solid #8fbc8f;
-      border-radius: 4px;
-    }
-    button,
-    a.button-link {
+    button, a.button-link {
       background-color: #8fbc8f;
       border: none;
       color: white;
       cursor: pointer;
       text-align: center;
       text-decoration: none;
-      transition: background-color 0.3s ease;
     }
-    button:hover,
-    a.button-link:hover {
+    button:hover, a.button-link:hover {
       background-color: #6b8e23;
     }
   </style>
@@ -94,83 +79,55 @@
 
   <div class="map-wrapper">
     <div class="ad">
-      <ins
-        class="adsbygoogle"
-        style="display:block"
-        data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-        data-ad-slot="1111111111"
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-      ></ins>
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="1111111111" data-ad-format="auto" data-full-width-responsive="true"></ins>
     </div>
     <div id="map"></div>
     <div class="ad">
-      <ins
-        class="adsbygoogle"
-        style="display:block"
-        data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-        data-ad-slot="2222222222"
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-      ></ins>
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="2222222222" data-ad-format="auto" data-full-width-responsive="true"></ins>
     </div>
   </div>
 
   <div class="container">
     <div class="form-section">
       <h3>Login</h3>
-      <a
-        href="https://gaudiguide.github.io/login.html"
-        class="button-link"
-        aria-label="Location hinzufügen"
-        >Location hinzufügen</a
-      >
+      <a href="https://gaudiguide.github.io/login.html" class="button-link" aria-label="Location hinzufügen">Location hinzufügen</a>
     </div>
     <div class="form-section">
       <h3>Umkreis einstellen</h3>
       <label for="radius">Radius in km</label>
       <input type="number" id="radius" value="5" min="0.1" step="0.1" />
-      <button id="drawCircleBtn" aria-label="Umkreis zeichnen">
-        Umkreis zeichnen
-      </button>
+      <button onclick="drawCircle()" aria-label="Umkreis zeichnen">Umkreis zeichnen</button>
     </div>
   </div>
 
-  <!-- Leaflet und GeoSearch -->
+  <!-- Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-geosearch@3.1.0/dist/bundle.min.js"></script>
-  <!-- Supabase JS SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1.35.6/dist/umd/supabase.min.js"></script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 
   <script>
     (adsbygoogle = window.adsbygoogle || []).push({});
 
-    const SUPABASE_URL = "https://lfptdjesepqdoolcxppw.supabase.co";
-    const SUPABASE_KEY =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmcHRkamVzZXBxZG9vbGN4cHB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MDk3OTMsImV4cCI6MjA2MDM4NTc5M30.i67qj_tTDvx9_TJiWHCo_RT8EnS71ZV7LpJIvlAXiFg";
+    const supabaseClient = window.supabase.createClient(
+      "https://lfptdjesepqdoolcxppw.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmcHRkamVzZXBxZG9vbGN4cHB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MDk3OTMsImV4cCI6MjA2MDM4NTc5M30.i67qj_tTDvx9_TJiWHCo_RT8EnS71ZV7LpJIvlAXiFg"
+    );
 
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    let map, userMarker, radiusCircle;
-    let userLat = 51.1657; // Standard Deutschland Mitte
+    let map, marker, circle;
+    let userLat = 51.1657;
     let userLon = 10.4515;
-    let supabaseMarkers = [];
-
     const radiusInput = document.getElementById("radius");
-    const drawCircleBtn = document.getElementById("drawCircleBtn");
+    const supabaseMarkers = [];
 
     function drawCircle() {
-      if (!map || !userMarker) return;
-
+      if (!map || !marker) return;
       const radiusKm = parseFloat(radiusInput.value);
       if (isNaN(radiusKm) || radiusKm <= 0) return;
 
-      if (radiusCircle) {
-        map.removeLayer(radiusCircle);
-      }
-
-      radiusCircle = L.circle(userMarker.getLatLng(), {
+      if (circle) map.removeLayer(circle);
+      const center = marker.getLatLng();
+      circle = L.circle(center, {
         radius: radiusKm * 1000,
         color: "green",
         fillColor: "#aaffaa",
@@ -179,34 +136,42 @@
     }
 
     async function loadLocations() {
-      // Alte Marker entfernen
-      supabaseMarkers.forEach((marker) => map.removeLayer(marker));
-      supabaseMarkers = [];
+      supabaseMarkers.forEach(m => map.removeLayer(m));
+      supabaseMarkers.length = 0;
 
       const { data, error } = await supabaseClient.from("Locations").select("*");
-
       if (error) {
-        console.error("Fehler beim Laden der Locations:", error.message);
+        console.error("Fehler beim Laden der Locations:", error);
         return;
       }
 
-      data.forEach(({ latitude, longitude, name, description }) => {
-        if (latitude && longitude) {
-          const marker = L.marker([latitude, longitude]).addTo(map);
-          marker.bindPopup(`<strong>${name || "Unbenannte Location"}</strong><br>${description || ""}`);
-          supabaseMarkers.push(marker);
+      data.forEach(loc => {
+        if (loc.latitude && loc.longitude) {
+          const m = L.marker([loc.latitude, loc.longitude]).addTo(map);
+          m.bindPopup(`<strong>${loc.name || "Unbenannte Location"}</strong><br>${loc.description || ""}`);
+          supabaseMarkers.push(m);
         }
       });
     }
 
-    function setupSearchControl(lat, lon) {
+    function initMap(position) {
+      userLat = position.coords.latitude;
+      userLon = position.coords.longitude;
+
+      map = L.map("map").setView([userLat, userLon], 13);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+      }).addTo(map);
+
+      marker = L.marker([userLat, userLon]).addTo(map);
+
       const bounds = L.latLngBounds(
-        [lat - 0.45, lon - 0.45],
-        [lat + 0.45, lon + 0.45]
+        [userLat - 0.45, userLon - 0.45],
+        [userLat + 0.45, userLon + 0.45]
       );
 
       const provider = new window.GeoSearch.OpenStreetMapProvider();
-
       const searchControl = new window.GeoSearch.GeoSearchControl({
         provider,
         style: "bar",
@@ -220,63 +185,39 @@
         updateMap: true,
         searchBounds: bounds,
         sort: (a, b) => {
-          const distA = Math.hypot(a.y - lat, a.x - lon);
-          const distB = Math.hypot(b.y - lat, b.x - lon);
+          const distA = Math.hypot(a.y - userLat, a.x - userLon);
+          const distB = Math.hypot(b.y - userLat, b.x - userLon);
           return distA - distB;
         },
       });
 
       map.addControl(searchControl);
 
-      map.on("geosearch/showlocation", (event) => {
-        if (userMarker) map.removeLayer(userMarker);
-
-        const { y, x } = event.location;
-        userMarker = L.marker([y, x]).addTo(map);
-        map.setView([y, x], 13);
+      map.on("geosearch/showlocation", result => {
+        if (marker) map.removeLayer(marker);
+        marker = L.marker([result.location.y, result.location.x]).addTo(map);
+        map.setView([result.location.y, result.location.x], 13);
         drawCircle();
       });
-    }
-
-    async function initMap(position) {
-      userLat = position.coords.latitude;
-      userLon = position.coords.longitude;
-
-      map = L.map("map").setView([userLat, userLon], 13);
-
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution:
-          'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
-      }).addTo(map);
-
-      userMarker = L.marker([userLat, userLon]).addTo(map);
-
-      setupSearchControl(userLat, userLon);
-
-      drawCircle();
 
       radiusInput.addEventListener("input", drawCircle);
-      drawCircleBtn.addEventListener("click", drawCircle);
 
-      await loadLocations();
+      drawCircle();
+      loadLocations();
     }
 
-    async function fallbackInit() {
-      alert(
-        "Standortzugriff nicht erlaubt oder fehlgeschlagen. Karte wird mit Standardansicht geladen."
-      );
-      await initMap({ coords: { latitude: userLat, longitude: userLon } });
-    }
-
-    window.onload = async () => {
+    window.onload = function () {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           initMap,
-          fallbackInit
+          () => {
+            alert("Standortzugriff nicht erlaubt oder fehlgeschlagen. Karte wird mit Standardansicht geladen.");
+            initMap({ coords: { latitude: userLat, longitude: userLon } });
+          }
         );
       } else {
         alert("Geolocation wird von diesem Browser nicht unterstützt.");
-        await initMap({ coords: { latitude: userLat, longitude: userLon } });
+        initMap({ coords: { latitude: userLat, longitude: userLon } });
       }
     };
   </script>

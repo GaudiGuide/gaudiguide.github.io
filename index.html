@@ -1,124 +1,65 @@
-<!-- Supabase JavaScript Client -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-  (adsbygoogle = window.adsbygoogle || []).push({});
-
-  let map;
-  let circle = null;
-  let marker = null;
-  const radiusInput = document.getElementById("radius");
-
-  // Supabase-Konfiguration
-  const SUPABASE_URL = "https://lfptdjesepqdoolcxppw.supabase.co";
-  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmcHRkamVzZXBxZG9vbGN4cHB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MDk3OTMsImV4cCI6MjA2MDM4NTc5M30.i67qj_tTDvx9_TJiWHCo_RT8EnS71ZV7LpJIvlAXiFg";
-
-  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-  function drawCircle() {
-    if (!map || !marker) return;
-
-    const radiusKm = parseFloat(radiusInput.value);
-    if (isNaN(radiusKm) || radiusKm <= 0) return;
-
-    if (circle) map.removeLayer(circle);
-
-    const center = marker.getLatLng();
-    circle = L.circle(center, {
-      radius: radiusKm * 1000,
-      color: "green",
-      fillColor: "#aaffaa",
-      fillOpacity: 0.3,
-    }).addTo(map);
-  }
-
-  async function loadLocations() {
-    const { data, error } = await supabase.from("Locations").select("*");
-
-    if (error) {
-      console.error("Fehler beim Laden der Locations:", error.message);
-      return;
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gaudi-Guide</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet-geosearch@3.1.0/dist/geosearch.css"
+  />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f5f5dc;
+      color: #2e4e1f;
     }
-
-    data.forEach((location) => {
-      if (location.latitude && location.longitude) {
-        L.marker([location.latitude, location.longitude])
-          .addTo(map)
-          .bindPopup(location.name || "Unbenannte Location");
-      }
-    });
-  }
-
-  function initMap(position) {
-    const userLat = position.coords.latitude;
-    const userLon = position.coords.longitude;
-
-    map = L.map("map").setView([userLat, userLon], 13);
-
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution:
-        'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
-    }).addTo(map);
-
-    marker = L.marker([userLat, userLon]).addTo(map);
-
-    const bounds = L.latLngBounds(
-      [userLat - 0.45, userLon - 0.45],
-      [userLat + 0.45, userLon + 0.45]
-    );
-
-    const provider = new window.GeoSearch.OpenStreetMapProvider();
-    const searchControl = new window.GeoSearch.GeoSearchControl({
-      provider: provider,
-      style: "bar",
-      searchLabel: "Suche nach Ort",
-      showMarker: false,
-      autoComplete: true,
-      autoCompleteDelay: 250,
-      retainZoomLevel: false,
-      animateZoom: true,
-      keepResult: true,
-      updateMap: true,
-      searchBounds: bounds,
-      sort: (a, b) => {
-        const distA = Math.sqrt(
-          Math.pow(a.y - userLat, 2) + Math.pow(a.x - userLon, 2)
-        );
-        const distB = Math.sqrt(
-          Math.pow(b.y - userLat, 2) + Math.pow(b.x - userLon, 2)
-        );
-        return distA - distB;
-      },
-    });
-    map.addControl(searchControl);
-
-    map.on("geosearch/showlocation", function (result) {
-      if (marker) map.removeLayer(marker);
-      marker = L.marker([result.location.y, result.location.x]).addTo(map);
-      map.setView([result.location.y, result.location.x], 13);
-      drawCircle();
-    });
-
-    radiusInput.addEventListener("input", drawCircle);
-
-    drawCircle();       // ✅ Kreis automatisch beim Start
-    loadLocations();    // ✅ Marker von Supabase laden
-  }
-
-  window.onload = function () {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        initMap,
-        function () {
-          alert(
-            "Standortzugriff nicht erlaubt oder fehlgeschlagen. Karte wird mit Standardansicht geladen."
-          );
-          initMap({ coords: { latitude: 51.1657, longitude: 10.4515 } });
-        }
-      );
-    } else {
-      alert("Geolocation wird von diesem Browser nicht unterstützt.");
-      initMap({ coords: { latitude: 51.1657, longitude: 10.4515 } });
+    .logo-container {
+      text-align: center;
+      padding-top: 1em;
     }
-  };
-</script>
+    .logo-container img {
+      max-height: 80px;
+    }
+    header {
+      background-color: #8fbc8f;
+      padding: 1em;
+      text-align: center;
+      font-size: 1.5em;
+      color: white;
+    }
+    .map-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .ad {
+      width: 10%;
+      margin: 10px;
+    }
+    #map {
+      height: 500px;
+      flex-grow: 1;
+    }
+    .container {
+      display: flex;
+      justify-content: space-around;
+      padding: 2em;
+      background-color: #f0f8f0;
+    }
+    .form-section {
+      width: 40%;
+    }
+    label,
+    input,
+    button,
+    a.button-link {
+      display: block;
+      margin-bottom: 10px;
+      width: 100%;
+      padding: 0.5em;

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Location Submitter</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -23,7 +23,7 @@
       margin-top: 1em;
       font-weight: bold;
     }
-    input[type="text"], input[type="checkbox"], button {
+    input[type="text"], button {
       margin-top: 0.5em;
       padding: 0.5em;
       width: 100%;
@@ -40,40 +40,106 @@
       text-align: center;
       margin-top: 1em;
     }
+    #auth-section {
+      max-width: 400px;
+      margin: auto;
+      margin-bottom: 1.5em;
+      text-align: center;
+    }
+    #auth-section button {
+      width: auto;
+      margin: 0 0.5em;
+      padding: 0.4em 1em;
+      background-color: #557755;
+    }
   </style>
 </head>
 <body>
 
 <h2 style="text-align:center;">Add a New Location</h2>
+
+<div id="auth-section">
+  <span id="user-info"></span>
+  <button id="login-btn">Login</button>
+  <button id="logout-btn" style="display:none;">Logout</button>
+</div>
+
 <form id="location-form">
   <label for="name">Name:</label>
-  <input type="text" id="name" required>
+  <input type="text" id="name" required />
 
   <label for="address">Address:</label>
-  <input type="text" id="address" required>
+  <input type="text" id="address" required />
 
   <button type="submit">Submit</button>
   <div class="status" id="status"></div>
 </form>
 
 <script>
-  const supabase = window.supabase.createClient('https://lfptdjesepqdoolcxppw.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmcHRkamVzZXBxZG9vbGN4cHB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MDk3OTMsImV4cCI6MjA2MDM4NTc5M30.i67qj_tTDvx9_TJiWHCo_RT8EnS71ZV7LpJIvlAXiFg');
+  const supabase = window.supabase.createClient(
+    'https://lfptdjesepqdoolcxppw.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmcHRkamVzZXBxZG9vbGN4cHB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MDk3OTMsImV4cCI6MjA2MDM4NTc5M30.i67qj_tTDvx9_TJiWHCo_RT8EnS71ZV7LpJIvlAXiFg'
+  );
 
-  document.getElementById('location-form').addEventListener('submit', async function(event) {
+  const loginBtn = document.getElementById('login-btn');
+  const logoutBtn = document.getElementById('logout-btn');
+  const userInfo = document.getElementById('user-info');
+  const status = document.getElementById('status');
+
+  // Status und UI aktualisieren je nach Login-Status
+  async function updateAuthUI() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      userInfo.textContent = `Eingeloggt als: ${session.user.email}`;
+      loginBtn.style.display = 'none';
+      logoutBtn.style.display = 'inline-block';
+    } else {
+      userInfo.textContent = 'Nicht eingeloggt';
+      loginBtn.style.display = 'inline-block';
+      logoutBtn.style.display = 'none';
+    }
+  }
+
+  // Login mit Magic Link via Email (nur als Beispiel)
+  loginBtn.addEventListener('click', async () => {
+    const email = prompt('Bitte gib deine Email-Adresse ein:');
+    if (!email) return;
+    const { error } = await supabase.auth.signInWithOtp({ email });
+    if (error) {
+      alert('Login fehlgeschlagen: ' + error.message);
+    } else {
+      alert('Login-Link wurde an deine Email gesendet. Bitte überprüfe deinen Posteingang.');
+    }
+  });
+
+  logoutBtn.addEventListener('click', async () => {
+    await supabase.auth.signOut();
+    status.textContent = '';
+    await updateAuthUI();
+  });
+
+  // Formular-Submit mit Session-Check
+  document.getElementById('location-form').addEventListener('submit', async (event) => {
     event.preventDefault();
+
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session) {
+      status.textContent = 'Bitte zuerst einloggen, um eine Location hinzufügen zu können.';
+      status.style.color = 'red';
+      return;
+    }
 
     const name = document.getElementById('name').value;
     const address = document.getElementById('address').value;
 
+    const { data, error } = await supabase
+      .from('Locations')
+      .insert([
+        { Adress: address, Name: name },
+      ])
+      .select();
 
-const { data, error } = await supabase
-  .from('Locations')
-  .insert([
-    { Adress: 'address', Name: 'name' },
-  ])
-  .select()
-    
-    const status = document.getElementById('status');
     if (error) {
       status.textContent = 'Error: ' + error.message;
       status.style.color = 'red';
@@ -82,6 +148,14 @@ const { data, error } = await supabase
       status.style.color = 'green';
       document.getElementById('location-form').reset();
     }
+  });
+
+  // Initial UI Update
+  updateAuthUI();
+
+  // Optional: Session-Listener für Statusänderungen (Login/Logout)
+  supabase.auth.onAuthStateChange(() => {
+    updateAuthUI();
   });
 </script>
 

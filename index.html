@@ -151,8 +151,6 @@
   <script src="https://unpkg.com/leaflet-geosearch@3.1.0/dist/bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-  <script src="https://unpkg.com/leaflet-geosearch@3.1.0/dist/bundle.min.js"></script>
-
 
   <script>
     const supabase = window.supabase.createClient(
@@ -161,60 +159,49 @@
     );
 
     let map, marker = null, circle = null;
-    let userLat = 51.1657, userLon = 10.4515;
     let supabaseMarkers = [];
 
     function drawCircle(lat, lon) {
-  if (!map) return;
-  const radiusInput = document.getElementById("radius");
-  const radiusKm = parseFloat(radiusInput.value);
-  if (isNaN(radiusKm) || radiusKm <= 0) {
-    alert("Bitte einen gültigen Radius eingeben.");
-    return;
-  }
+      if (!map) return;
+      const radiusInput = document.getElementById("radius");
+      const radiusKm = parseFloat(radiusInput.value);
+      if (isNaN(radiusKm) || radiusKm <= 0) {
+        alert("Bitte einen gültigen Radius eingeben.");
+        return;
+      }
 
-  // Bestimme Zentrum (entweder übergeben oder aktueller Marker)
-  let center;
-  if (lat !== undefined && lon !== undefined) {
-    center = L.latLng(lat, lon);
-    // Entferne alten Marker, setze neuen am neuen Ort
-    if (marker) map.removeLayer(marker);
-    marker = L.marker(center).addTo(map);
-  } else {
-    if (!marker) return;
-    center = marker.getLatLng();
-  }
+      // Bestimme Zentrum (entweder übergeben oder aktueller Marker)
+      let center;
+      if (lat !== undefined && lon !== undefined) {
+        center = L.latLng(lat, lon);
+        // Entferne alten Marker, setze neuen am neuen Ort
+        if (marker) map.removeLayer(marker);
+        marker = L.marker(center).addTo(map);
+      } else {
+        if (!marker) return;
+        center = marker.getLatLng();
+      }
 
-  // Entferne alten Kreis und zeichne neuen
-  if (circle) map.removeLayer(circle);
-  circle = L.circle(center, {
-    radius: radiusKm * 1000,
-    color: "green",
-    fillColor: "#aaffaa",
-    fillOpacity: 0.3,
-  }).addTo(map);
+      // Entferne alten Kreis und zeichne neuen
+      if (circle) map.removeLayer(circle);
+      circle = L.circle(center, {
+        radius: radiusKm * 1000,
+        color: "green",
+        fillColor: "#aaffaa",
+        fillOpacity: 0.3,
+      }).addTo(map);
 
-  // Lade Locations mit Radius um das Zentrum
-  loadLocationsWithRadius(center.lat, center.lng, radiusKm);
-}
-
-// Event für Suche anpassen
-map.on("geosearch/showlocation", function (result) {
-  const lat = result.location.y;
-  const lon = result.location.x;
-  map.setView([lat, lon], 13);
-  drawCircle(lat, lon); // Kreis an neuem Ort zeichnen
-});
-
+      // Lade Locations mit Radius um das Zentrum
+      loadLocationsWithRadius(center.lat, center.lng, radiusKm);
+    }
 
     async function loadLocationsWithRadius(lat, lon, radiusKm) {
       try {
         document.getElementById("loader").style.display = "block";
-        const { data, error } = await supabase
-        .rpc('get_locations_within_radius', {
-        lat_input: userLat,
-        lon_input: userLon,
-        radius_km: parseFloat(radiusInput.value),
+        const { data, error } = await supabase.rpc('get_locations_within_radius', {
+          lat_input: lat,
+          lon_input: lon,
+          radius_km: radiusKm,
         });
         if (error) throw error;
         supabaseMarkers.forEach(m => map.removeLayer(m));
@@ -233,8 +220,8 @@ map.on("geosearch/showlocation", function (result) {
     }
 
     function initMap(position) {
-      userLat = position.coords.latitude;
-      userLon = position.coords.longitude;
+      let userLat = position.coords.latitude;
+      let userLon = position.coords.longitude;
 
       map = L.map("map").setView([userLat, userLon], 13);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -249,36 +236,47 @@ map.on("geosearch/showlocation", function (result) {
         style: 'bar',
         autoComplete: true,
         autoCompleteDelay: 25,
-        showMarker: true,
+        showMarker: false, // Marker setzen wir selbst
         retainZoomLevel: false,
         animateZoom: true,
         keepResult: true
       });
       map.addControl(searchControl);
 
+      // Suche: Kreis und Marker an Suchposition setzen
       map.on("geosearch/showlocation", function (result) {
-        if (marker) map.removeLayer(marker);
-        marker = L.marker([result.location.y, result.location.x]).addTo(map);
-        map.setView([result.location.y, result.location.x], 13);
-        drawCircle();
+        const lat = result.location.y;
+        const lon = result.location.x;
+        map.setView([lat, lon], 13);
+        drawCircle(lat, lon);
       });
 
-      document.getElementById("radius").addEventListener("input", drawCircle);
-      drawCircle();
+      // Radius-Eingabe: Kreis neu zeichnen an aktuellem Marker
+      document.getElementById("radius").addEventListener("input", () => {
+        if (marker) {
+          const { lat, lng } = marker.getLatLng();
+          drawCircle(lat, lng);
+        }
+      });
+
+      // Startkreis am Nutzerstandort
+      drawCircle(userLat, userLon);
     }
 
     window.onload = function () {
+      let defaultLat = 51.1657;
+      let defaultLon = 10.4515;
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           initMap,
           function () {
             alert("Standortzugriff nicht erlaubt. Standardposition wird verwendet.");
-            initMap({ coords: { latitude: userLat, longitude: userLon } });
+            initMap({ coords: { latitude: defaultLat, longitude: defaultLon } });
           }
         );
       } else {
         alert("Geolocation wird nicht unterstützt.");
-        initMap({ coords: { latitude: userLat, longitude: userLon } });
+        initMap({ coords: { latitude: defaultLat, longitude: defaultLon } });
       }
     };
   </script>

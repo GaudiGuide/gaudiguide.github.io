@@ -142,6 +142,27 @@
     let userLat = 51.1657;
     let userLon = 10.4515;
 
+    const radiusInput = document.getElementById("radius");
+
+    function drawCircle() {
+      if (!map || !marker) return;
+
+      const radiusKm = parseFloat(radiusInput.value);
+      if (isNaN(radiusKm) || radiusKm <= 0) {
+        return; // kein Alarm, um nicht bei jedem Tastenanschlag zu stören
+      }
+
+      if (circle) map.removeLayer(circle);
+
+      const center = marker.getLatLng();
+      circle = L.circle(center, {
+        radius: radiusKm * 1000,
+        color: "green",
+        fillColor: "#aaffaa",
+        fillOpacity: 0.3,
+      }).addTo(map);
+    }
+
     function initMap(position) {
       userLat = position.coords.latitude;
       userLon = position.coords.longitude;
@@ -153,7 +174,6 @@
           'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
       }).addTo(map);
 
-      // Marker am Startpunkt setzen
       marker = L.marker([userLat, userLon]).addTo(map);
 
       // Suchbereich ca. 50 km um den Nutzer
@@ -188,41 +208,23 @@
       map.addControl(searchControl);
 
       map.on("geosearch/showlocation", function (result) {
-        // Alten Marker entfernen, neuen setzen
         if (marker) map.removeLayer(marker);
         marker = L.marker([result.location.y, result.location.x]).addTo(map);
         map.setView([result.location.y, result.location.x], 13);
-        drawCircle([result.location.y, result.location.x]);
+        drawCircle(); // Kreis neu zeichnen um neuen Marker
       });
 
-      drawCircle([userLat, userLon]);
-    }
+      // Kreis neu zeichnen, wenn der Radius geändert wird
+      radiusInput.addEventListener("input", drawCircle);
 
-    function drawCircle(center = null) {
-      if (!map) return;
-
-      const radiusKm = parseFloat(document.getElementById("radius").value);
-      if (isNaN(radiusKm) || radiusKm <= 0) {
-        alert("Bitte einen positiven Radius eingeben.");
-        return;
-      }
-
-      if (circle) map.removeLayer(circle);
-
-      const currentCenter = center || map.getCenter();
-      circle = L.circle(currentCenter, {
-        radius: radiusKm * 1000,
-        color: "green",
-        fillColor: "#aaffaa",
-        fillOpacity: 0.3,
-      }).addTo(map);
+      drawCircle(); // initialer Kreis um Nutzer
     }
 
     window.onload = function () {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           initMap,
-          function (error) {
+          function () {
             alert(
               "Standortzugriff nicht erlaubt oder fehlgeschlagen. Karte wird mit Standardansicht geladen."
             );

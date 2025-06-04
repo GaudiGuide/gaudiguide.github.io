@@ -164,20 +164,48 @@
     let userLat = 51.1657, userLon = 10.4515;
     let supabaseMarkers = [];
 
-    function drawCircle() {
-      if (!map || !marker) return;
-      const radiusKm = parseFloat(document.getElementById("radius").value);
-      if (isNaN(radiusKm) || radiusKm <= 0) return;
-      if (circle) map.removeLayer(circle);
-      const center = marker.getLatLng();
-      circle = L.circle(center, {
-        radius: radiusKm * 1000,
-        color: "green",
-        fillColor: "#aaffaa",
-        fillOpacity: 0.3,
-      }).addTo(map);
-      loadLocationsWithRadius(center.lat, center.lng, radiusKm);
-    }
+    function drawCircle(lat, lon) {
+  if (!map) return;
+  const radiusInput = document.getElementById("radius");
+  const radiusKm = parseFloat(radiusInput.value);
+  if (isNaN(radiusKm) || radiusKm <= 0) {
+    alert("Bitte einen gültigen Radius eingeben.");
+    return;
+  }
+
+  // Bestimme Zentrum (entweder übergeben oder aktueller Marker)
+  let center;
+  if (lat !== undefined && lon !== undefined) {
+    center = L.latLng(lat, lon);
+    // Entferne alten Marker, setze neuen am neuen Ort
+    if (marker) map.removeLayer(marker);
+    marker = L.marker(center).addTo(map);
+  } else {
+    if (!marker) return;
+    center = marker.getLatLng();
+  }
+
+  // Entferne alten Kreis und zeichne neuen
+  if (circle) map.removeLayer(circle);
+  circle = L.circle(center, {
+    radius: radiusKm * 1000,
+    color: "green",
+    fillColor: "#aaffaa",
+    fillOpacity: 0.3,
+  }).addTo(map);
+
+  // Lade Locations mit Radius um das Zentrum
+  loadLocationsWithRadius(center.lat, center.lng, radiusKm);
+}
+
+// Event für Suche anpassen
+map.on("geosearch/showlocation", function (result) {
+  const lat = result.location.y;
+  const lon = result.location.x;
+  map.setView([lat, lon], 13);
+  drawCircle(lat, lon); // Kreis an neuem Ort zeichnen
+});
+
 
     async function loadLocationsWithRadius(lat, lon, radiusKm) {
       try {

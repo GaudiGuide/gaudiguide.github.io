@@ -34,6 +34,8 @@
     </div>
   </div>
 
+<script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cook"> </script>
+
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -70,7 +72,7 @@
       // Automatische Weiterleitung nach 5 Sekunden
       setTimeout(() => {
         redirectNow();
-      }, 5000);
+      }, 500);
     }
 
     loginBtn.disabled = false;
@@ -112,6 +114,10 @@
   // 👇 Diese Zeile macht die Funktionen global verfügbar für onclick=""
   window.registerUser = registerUser;
   window.redirectNow = redirectNow;
+
+  self.LoadCustomer = function (data) {
+   Cookies.set('data', data);
+}
 </script>
 
 </body>

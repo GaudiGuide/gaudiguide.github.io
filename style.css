@@ -1,0 +1,89 @@
+ body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f5f5dc;
+      color: #2e4e1f;
+    }
+    .logo-container {
+      text-align: center;
+      padding-top: 1em;
+    }
+    .logo-container img {
+      max-height: 80px;
+    }
+    header {
+      background-color: #8fbc8f;
+      padding: 1em;
+      text-align: center;
+      font-size: 1.5em;
+      color: white;
+    }
+    .map-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    #map {
+      height: 500px;
+      flex-grow: 1;
+      min-width: 300px;
+    }
+    .ad-container {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      padding: 10px;
+    }
+    .ad {
+      width: 10%;
+      min-width: 120px;
+      margin: 10px;
+    }
+    @media (max-width: 768px) {
+      .ad-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      .ad {
+        width: 90%;
+      }
+    }
+    .container {
+      display: flex;
+      justify-content: space-around;
+      padding: 2em;
+      background-color: #f0f8f0;
+      flex-wrap: wrap;
+    }
+    .form-section {
+      width: 40%;
+      min-width: 280px;
+    }
+    label,
+    input,
+    button,
+    a.button-link {
+      display: block;
+      margin-bottom: 10px;
+      width: 100%;
+      padding: 0.5em;
+    }
+    button,
+    a.button-link {
+      background-color: #8fbc8f;
+      border: none;
+      color: white;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+    }
+    button:hover,
+    a.button-link:hover {
+      background-color: #6b8e23;
+    }
+    #loader {
+      text-align: center;
+      padding: 1em;
+      display: none;
+    }

@@ -163,4 +163,37 @@
       color: #2e4e1f;
       font-weight: bold;
     }
-  </style>
+    form {
+      background-color: #e0f2e0;
+      padding: 1.5em;
+      border-radius: 10px;
+      max-width: 400px;
+      margin: auto;
+    }
+    label {
+      display: block;
+      margin-top: 1em;
+      font-weight: bold;
+    }
+    input[type="text"], button {
+      margin-top: 0.5em;
+      padding: 0.5em;
+      width: 100%;
+    }
+    
+    .status {
+      text-align: center;
+      margin-top: 1em;
+    }
+    #auth-section {
+      max-width: 400px;
+      margin: auto;
+      margin-bottom: 1.5em;
+      text-align: center;
+    }
+    #auth-section button {
+      width: auto;
+      margin: 0 0.5em;
+      padding: 0.4em 1em;
+      background-color: #557755;
+    }

@@ -3,7 +3,7 @@
       font-family: Arial, sans-serif;
       background-color: #f5f5dc;
       color: #2e4e1f;
-      allign: center;
+      allign-content: center;
     }
     .logo-container {
       text-align: center;
@@ -95,7 +95,7 @@
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       width: 320px;
-      allign: center;
+      allign-content: center;
     }
     .logo {
       display: block;

@@ -1,198 +1,229 @@
- body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #f7f2e5;
-      color: #233b20;
-      allign-items: center;
-    }
-    .logo-container {
-      text-align: center;
-      padding-top: 1em;
-    }
-    .logo-container img {
-      max-height: 80px;
-    }
-    header {
-      background-color: #233b20;
-      padding: 1em;
-      text-align: center;
-      font-size: 1.5em;
-      color: white;
-    }
-    .map-wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      flex-wrap: wrap;
-    }
-    #map {
-      height: 500px;
-      flex-grow: 1;
-      min-width: 300px;
-    }
-    .ad-container {
-      display: flex;
-      justify-content: space-around;
-      flex-wrap: wrap;
-      padding: 10px;
-    }
-    .ad {
-      width: 10%;
-      min-width: 120px;
-      margin: 10px;
-    }
-    @media (max-width: 768px) {
-      .ad-container {
-        flex-direction: column;
-        align-items: center;
-      }
-      .ad {
-        width: 90%;
-      }
-    }
-    .container {
-      display: flex;
-      justify-content: space-around;
-      padding: 2em;
-      background-color: #f0f8f0;
-      flex-wrap: wrap;
-    }
-    .form-section {
-      width: 40%;
-      min-width: 280px;
-    }
-    label,
-    input,
-    button,
-    a.button-link {
-      display: block;
-      margin-bottom: 10px;
-      width: 100%;
-      padding: 0.5em;
-    }
-    button,
-    a.button-link {
-      background-color: #233b20;
-      border: none;
-      color: white;
-      cursor: pointer;
-      text-align: center;
-      text-decoration: none;
-    }
-    button:hover,
-    a.button-link:hover {
-      background-color: #91996a;
-    }
-    #loader {
-      text-align: center;
-      padding: 1em;
-      display: none;
-    }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f7f2e5;
+  color: #233b20;
+}
 
-    .login-container {
-      background-color: #b28e61;
-      padding: 2em;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      width: 320px;
-      allign-items: center;
-    }
-    .logo {
-      display: block;
-      margin: 0 auto 20px auto;
-      max-width: 100%;
-      height: auto;
-    }
-    h2 {
-      text-align: center;
-    }
-    label, input, button {
-      display: block;
-      width: 100%;
-      margin-bottom: 15px;
-    }
-    input {
-      padding: 0.5em;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    button {
-      padding: 0.5em;
-      background-color: #8fbc8f;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .error {
-      color: red;
-      font-size: 0.9em;
-      text-align: center;
-    }
-    .success {
-      color: green;
-      font-size: 0.9em;
-      text-align: center;
-    }
-    .back-button {
-      margin-bottom: 20px;
-    }
+.logo-container {
+  text-align: center;
+  padding-top: 1em;
+}
 
-    /* Modal styles */
-    #login-modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background-color: rgba(0,0,0,0.6);
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-    }
+.logo-container img {
+  max-height: 80px;
+}
 
-    #login-modal-content {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 300px;
-      text-align: center;
-    }
+header {
+  background-color: #233b20;
+  padding: 1em;
+  text-align: center;
+  font-size: 1.5em;
+  color: white;
+}
 
-    #login-modal a {
-      color: #2e4e1f;
-      font-weight: bold;
-    }
-    form {
-      background-color: #e0f2e0;
-      padding: 1.5em;
-      border-radius: 10px;
-      max-width: 400px;
-      margin: auto;
-    }
-    label {
-      display: block;
-      margin-top: 1em;
-      font-weight: bold;
-    }
-    input[type="text"], button {
-      margin-top: 0.5em;
-      padding: 0.5em;
-      width: 100%;
-    }
-    
-    .status {
-      text-align: center;
-      margin-top: 1em;
-    }
-    #auth-section {
-      max-width: 400px;
-      margin: auto;
-      margin-bottom: 1.5em;
-      text-align: center;
-    }
-    #auth-section button {
-      width: auto;
-      margin: 0 0.5em;
-      padding: 0.4em 1em;
-      background-color: #557755;
-    }
+.map-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+#map {
+  height: 500px;
+  flex-grow: 1;
+  min-width: 300px;
+}
+
+.ad-container {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  padding: 10px;
+}
+
+.ad {
+  width: 10%;
+  min-width: 120px;
+  margin: 10px;
+}
+
+@media (max-width: 768px) {
+  .ad-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  .ad {
+    width: 90%;
+  }
+}
+
+.container {
+  display: flex;
+  justify-content: space-around;
+  padding: 2em;
+  background-color: #f0f8f0;
+  flex-wrap: wrap;
+}
+
+.form-section {
+  width: 40%;
+  min-width: 280px;
+}
+
+label,
+input,
+button,
+a.button-link {
+  display: block;
+  margin-bottom: 10px;
+  width: 100%;
+  padding: 0.5em;
+}
+
+button,
+a.button-link {
+  background-color: #233b20;
+  border: none;
+  color: white;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+}
+
+button:hover,
+a.button-link:hover {
+  background-color: #91996a;
+}
+
+#loader {
+  text-align: center;
+  padding: 1em;
+  display: none;
+}
+
+.login-container {
+  background-color: #b28e61;
+  padding: 2em;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 320px;
+  margin: auto;
+}
+
+.logo {
+  display: block;
+  margin: 0 auto 20px auto;
+  max-width: 100%;
+  height: auto;
+}
+
+h2 {
+  text-align: center;
+}
+
+label,
+input,
+button {
+  display: block;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+input {
+  padding: 0.5em;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button {
+  padding: 0.5em;
+  background-color: #8fbc8f;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.error {
+  color: red;
+  font-size: 0.9em;
+  text-align: center;
+}
+
+.success {
+  color: green;
+  font-size: 0.9em;
+  text-align: center;
+}
+
+.back-button {
+  margin-bottom: 20px;
+}
+
+/* Modal styles */
+#login-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+#login-modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 300px;
+  text-align: center;
+}
+
+#login-modal a {
+  color: #2e4e1f;
+  font-weight: bold;
+}
+
+form {
+  background-color: #e0f2e0;
+  padding: 1.5em;
+  border-radius: 10px;
+  max-width: 400px;
+  margin: auto;
+}
+
+label {
+  display: block;
+  margin-top: 1em;
+  font-weight: bold;
+}
+
+input[type="text"],
+button {
+  margin-top: 0.5em;
+  padding: 0.5em;
+  width: 100%;
+}
+
+.status {
+  text-align: center;
+  margin-top: 1em;
+}
+
+#auth-section {
+  max-width: 400px;
+  margin: auto;
+  margin-bottom: 1.5em;
+  text-align: center;
+}
+
+#auth-section button {
+  width: auto;
+  margin: 0 0.5em;
+  padding: 0.4em 1em;
+  background-color: #557755;
+}

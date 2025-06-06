@@ -27,6 +27,8 @@
   <div class="status" id="status"></div>
 </form>
 
+<script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"> </script>
+
 <script>
   const supabase = window.supabase.createClient(
     'https://lfptdjesepqdoolcxppw.supabase.co',
@@ -105,10 +107,17 @@
   // Initial UI Update
   updateAuthUI();
 
-  // Optional: Session-Listener für Statusänderungen (Login/Logout)
-  supabase.auth.onAuthStateChange(() => {
-    updateAuthUI();
-  });
+// Direkt nach dem Laden der Zielseite
+supabase.auth.getUser().then(({ data: { user }, error }) => {
+  if (user) {
+    console.log("Eingeloggter Benutzer:", user);
+    // z.B. update UI mit user.email oder user.id
+  } else {
+    console.log("Nicht eingeloggt oder Fehler:", error);
+   window.location.href = "/login.html";
+  }
+});
+
 </script>
 
 </body>
